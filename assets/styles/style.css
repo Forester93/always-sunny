@@ -1,0 +1,186 @@
+/* Define variables */
+:root {
+  --bgColor: white;
+  --fontColor: rgb(206, 17, 143);
+  --borderColor: hotpink;
+  --bgColorQuestion: rgb(3, 17, 44);
+  --fontColorQuestion: whitesmoke;
+}
+/*******************************************************/
+/* Main body distribution */
+body {
+  display: grid;
+  grid-template-columns: 3fr 5fr 2fr;
+  row-gap: 30px;
+  background-color: var(--bgColor);
+  color: var(--fontColor);
+  grid-template-areas:
+    "header header header"
+    ". quiz-app ."
+    ".  quiz-app ."
+    ". quiz-app .";
+}
+
+/* Styling the header title */
+
+header {
+  font-family: "Times New Roman", Times, serif, Geneva, Verdana, sans-serif;
+  font-size: 300%;
+  margin-top: 5vh;
+  text-align: center;
+  grid-area: header;
+}
+
+/*Styling the form that contains the quiz*/
+
+#quiz-app {
+  width: 75%;
+  height: fit-content;
+  border: 5px dashed var(--borderColor);
+  padding: 50px;
+  grid-area: quiz-app;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 30px;
+}
+
+/*******************************************************/
+
+/* Hiding the form on page loading */
+#mcq {
+  width: 100%;
+  display: none;
+}
+
+form * {
+  margin-top: 3vh;
+  margin-left: 2vw;
+  color: antiquewhite;
+}
+
+/* Styling the question and the score bars*/
+
+#question,
+#score,
+#timer,
+#high-scores {
+  border: 3px solid var(--borderColor);
+  background-color: var(--bgColorQuestion);
+  border-radius: 10px;
+  color: antiquewhite;
+  display: block;
+  border: 2px solid grey;
+  font-size: 150%;
+  padding: 20px;
+  width: 90%;
+}
+
+/*hide score, high scores and timer button */
+#score,
+#high-scores {
+  display: none;
+}
+/*Styling table padding*/
+#high-scores tr,
+#high-scores tr * {
+  border: 1px solid white;
+  padding: 20px;
+}
+/*Styling the buttons*/
+
+button {
+  font-size: 200%;
+  padding: 20px;
+  font-weight: 200%;
+  margin: 25px;
+  border-radius: 10px;
+  color: var(--fontColor);
+}
+
+button:hover {
+  box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;
+}
+/*******************************************************/
+
+/* Styling the option button container */
+.choice-container {
+  border: 3px solid var(--borderColor);
+  background-color: var(--bgColorQuestion);
+  color: var(--fontColorQuestion);
+  display: block;
+  position: relative;
+  padding-left: 35px;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 150%;
+  user-select: none;
+  width: 90%;
+  height: fit-content;
+  border-radius: 10px;
+}
+/* Hide the browser's default radio button */
+.choice-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Create a custom radio button */
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: #eee;
+  border-radius: 50%;
+}
+
+/* On mouse-over, add a grey background color */
+.choice-container:hover input ~ .checkmark {
+  background-color: #ccc;
+}
+
+/* When the radio button is checked, add a blue background */
+.choice-container input:checked ~ .checkmark {
+  background-color: #2196f3;
+}
+
+/* Create the indicator (the dot/circle - hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the indicator (dot/circle) when checked */
+.choice-container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the indicator (dot/circle) */
+.choice-container .checkmark:after {
+  top: 9px;
+  left: 9px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
+}
+
+/*Styling the timer*/
+#timer {
+  font-family: "Times New Roman", Times, serif, Geneva, Verdana, sans-serif;
+  font-size: 150%;
+  position: fixed;
+  display: none;
+  top: 50%;
+  left: 5%;
+  background-color: black;
+  color: whitesmoke;
+  width: fit-content;
+  height: fit-content;
+  text-align: center;
+}
