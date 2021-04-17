@@ -1,5 +1,6 @@
 let pageContent = $("#dashboard");
 let resultsSection = $("#display-results");
+let locationInputEl = document.getElementById("locationInput");
 const API_KEY = "3c268b02dcc7e0b6b33d3d40d7acd0fd";
 let data = [];
 
@@ -83,7 +84,6 @@ function handleSubmit(e) {
   e.preventDefault();
 
   // Get location textfield element & check if input is valid
-  const locationInputEl = document.getElementById("locationInput");
   if (!validLocation(locationInputEl)) {
     $("#location-modal").modal("show");
     return;
@@ -144,43 +144,116 @@ function fetchData(lat, lon) {
     })
     .then(function (data) {
       console.log(data);
-      if (data.length == 0) {
-        alert("No results found. Please refine your search results");
-        window.location.href = "index.html";
-        return;
-      }
-      //   buildPage(data);
+      buildWeatherCard(data.current, locationInputEl.value);
+      locationInputEl.value = "";
+      //TODO: save search in a list
     });
 }
 
-function buildWeatherCard(data) {
-  for (let i in data) {
-    let weatherCard = $("<section>")
-      .addClass("col my-2")
-      .append(
-        $("<div>")
-          .addClass("front-imgblock")
-          .append(
-            $("<div>")
-              .addClass("front-img")
-              .append($("<p>").addClass("primary").html())
-          )
-      )
-      .append(
-        $("<div>")
-          .addClass("front-text")
-          .append($("<h4>").text(data[i].title))
-          .append($("<div>").html(data[i].description))
-          .append(
-            $("<span>")
-              .addClass("position")
-              .addClass("card col-5-body jobs")
-              .text("Type:" + data[i].type)
-          )
-      );
+// <div class="card">
+// <img class="card-img-top" src="..." alt="Card image cap" />
+// <div class="card-body">
+//   <h5 class="card-title">Card title</h5>
+//   <p class="card-text">
+//     This is a longer card with supporting text below as a natural
+//     lead-in to additional content. This content is a little bit
+//     longer.
+//   </p>
+//   <p class="card-text">
+//     This is a longer card with supporting text below as a natural
+//     lead-in to additional content. This content is a little bit
+//     longer.
+//   </p>
+//   <p class="card-text">
+//     This is a longer card with supporting text below as a natural
+//     lead-in to additional content. This content is a little bit
+//     longer.
+//   </p>
+//   <p class="card-text">
+//     This is a longer card with supporting text below as a natural
+//     lead-in to additional content. This content is a little bit
+//     longer.
+//   </p>
+//   <p class="card-text">
+//     <small class="text-muted">Last updated 3 mins ago</small>
+//   </p>
+// </div>
+// </div>
+function selectImage(data) {
+  return "http://openweathermap.org/img/wn/" + data.weather[0].icon + "@4x.png";
+}
 
-    resultsSection.append(job);
-  }
+function uvi(data) {
+  return data;
+  //TODO: put html representing colours for different UV indices
+}
+function buildWeatherCard(data, city) {
+  let weatherCard = $("<section>")
+    .addClass("card col-4")
+    .append(
+      $("<img>")
+        // .addClass("card-img-top")
+        .attr("src", selectImage(data))
+    )
+    .append(
+      $("<div>")
+        .addClass("card-body")
+        //timezone name
+        .append($("<h5>").addClass("card-title").text(city))
+        .append("<hr>")
+        .append(
+          //date
+          $("<p>").addClass("card-text").text(moment().format("MMM Do YYYY"))
+        )
+        //temperature
+        .append(
+          $("<p>")
+            .addClass("card-text temperature")
+            .text(
+              "Temperature: " +
+                Math.ceil((data.temp - 273.15) * 100) / 100 +
+                "°C"
+            )
+        )
+        //feels like
+        .append(
+          $("<p>")
+            .addClass("card-text feels like")
+            .text(
+              "Feels like: " +
+                Math.ceil((data.feels_like - 273.15) * 100) / 100 +
+                "°C"
+            )
+        )
+        //humidity
+        .append(
+          $("<p>")
+            .addClass("card-text humidity)")
+            .text("Humidity: " + data.humidity + "%")
+        )
+        //UVI
+        .append(
+          $("<p>")
+            .addClass("card-text UVI")
+            .html("UVI: " + uvi(data.uvi))
+        )
+        //Wind speed and direction
+        .append(
+          $("<p>")
+            .addClass("card-text wind-speed")
+            .text(
+              "Wind Speed: " + data.wind_speed + "m/s @" + data.wind_deg + "°"
+            )
+        )
+        //Weather Condition
+        .append(
+          $("<p>")
+            .addClass("card-text weather")
+            .text("Expected: " + data.weather[0].description)
+        )
+    );
+
+  resultsSection.append(weatherCard);
 }
 
 /**
