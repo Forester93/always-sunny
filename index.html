@@ -19,12 +19,10 @@
         <h1 class="display-4">Welcome to Always Sunny!</h1>
         <p class="lead">Your goto weather dashboard.</p>
         <hr class="my-4" />
-        <!-- <p>It uses utility classes for typography and spacing to space content out within the larger container.</p> -->
-        <!-- <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a> -->
       </div>
     </header>
     <section class="row container">
-      <!-- card -->
+      <!-- form -->
       <form class="bg-secondary p-5 border custom-form col-6" id="inputForm">
         <h2 class="lead">Enter Location</h2>
 
@@ -47,7 +45,8 @@
           </div>
         </div>
       </form>
-      <!-- table -->
+      <!-- results -->
+      <section id="display-results" class="row container"></section>
     </section>
 
     <!-- modal -->
@@ -66,7 +65,7 @@
             </button>
           </div>
           <div class="modal-body">
-            <p>Please enter a location to perform a search</p>
+            <p id="modal-text">Please enter a location to perform a search</p>
             <button
               type="button"
               class="btn btn-secondary"
