@@ -130,13 +130,13 @@ function fetchData(lat, lon, location) {
       console.log(data);
       resultsSection.append(
         $("<section>")
-          .addClass("bg-dark text-light col-12 rounded")
+          .addClass("bg-dark text-light col-12 rounded my-2 py-2")
           .text("Today's Weather")
       );
       buildWeatherCard(data.current, location, moment().format("LLLL"));
       resultsSection.append(
         $("<section>")
-          .addClass("bg-dark text-light col-12 rounded")
+          .addClass("bg-dark text-light col-12 rounded my-2 py-2")
           .text("Five-day Forecast")
       );
       for (let i = 0; i < 5; i++) {
