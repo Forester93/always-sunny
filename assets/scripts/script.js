@@ -155,11 +155,6 @@ function selectImage(data) {
   return "http://openweathermap.org/img/wn/" + data.weather[0].icon + "@2x.png";
 }
 
-function uvi(data) {
-  return data;
-  //TODO: put html representing colours for different UV indices
-}
-
 function buildWeatherCard(data, city, date) {
   let weatherCard = $("<section>")
     .addClass("card col-4")
@@ -237,8 +232,19 @@ function buildWeatherCard(data, city, date) {
         //UVI
         .append(
           $("<p>")
-            .addClass("card-text UVI")
-            .html("UVI: " + uvi(data.uvi))
+            .addClass("card-text")
+            .addClass(() => {
+              if (parseInt(data.uvi) < 2) {
+                return "UV1";
+              } else if (parseInt(data.uvi) < 5) {
+                return "UV2";
+              } else if (parseInt(data.uvi) < 8) {
+                return "UV3";
+              } else {
+                return "UV4";
+              }
+            })
+            .html("UVI: " + data.uvi)
         )
         //Wind speed and direction
         .append(
