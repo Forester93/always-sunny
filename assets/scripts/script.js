@@ -1,18 +1,56 @@
+const API_KEY = "3c268b02dcc7e0b6b33d3d40d7acd0fd";
+
 let pageContent = $("#dashboard");
 let resultsSection = $("#display-results");
 let locationInputEl = document.getElementById("locationInput");
-const API_KEY = "3c268b02dcc7e0b6b33d3d40d7acd0fd";
-let data = [];
 
+let storedData = [];
+let currentLocation = "";
 let formEl = document.getElementById("inputForm");
 let searchButton = $("#searchBtn");
 let clearBtn = $("#clearBtn");
+
+//clear local storage
+function reset() {
+  localStorage.setItem("always-sunny-cities", "");
+  storedData = [];
+}
+
+// Build Saved Search List
+
+function buildSavedSearchList() {
+  $("#savedSearches").html("");
+  for (let i = 0; i < storedData.length; i++) {
+    let savedSearch = $("<span>")
+      .attr("lat", storedData[i].latitude)
+      .attr("lon", storedData[i].longitude)
+      .addClass("btn btn-primary text-light mt-2 p-1 rounded searchHistory")
+      .text(storedData[i].location);
+    $("#savedSearches").append(savedSearch);
+  }
+}
 
 /**
  * Page initializer
  */
 function init() {
   formEl.addEventListener("submit", handleSubmit);
+  storedData = JSON.parse(localStorage.getItem("always-sunny-cities"));
+  buildSavedSearchList();
+  //to search from savedSearchHistory
+  $(".searchHistory").on("click", function (event) {
+    event.preventDefault();
+    fetchData(
+      this.getAttribute("lat"),
+      this.getAttribute("lon"),
+      this.innerText
+    );
+  });
+  $("#clearBtn").on("click", function (event) {
+    event.preventDefault();
+    reset();
+    buildSavedSearchList();
+  });
 }
 
 /**
@@ -27,10 +65,9 @@ function handleSubmit(e) {
     return;
   }
 
-  // Add inputs to local store
-  addInputsToLocalStore(locationInputEl);
-
-  // Run search
+  // Add inputs to local store & Run fetch
+  currentLocation = locationInputEl.value;
+  handleData(locationInputEl);
 }
 
 /**
@@ -47,33 +84,36 @@ function validLocation(locationInputEl) {
 /**
  * Saves input to local store
  */
-function addInputsToLocalStore(locationInputEl) {
-  data.push({
-    latitude: locationInputEl.getAttribute("data-lat"),
-    longitude: locationInputEl.getAttribute("data-lon"),
-    location: locationInputEl.value,
-  });
-  localStorage.setItem("always-sunny-cities", JSON.stringify(data));
+function handleData(locationInputEl) {
+  //make sure the location wasn't saved before
+  if (
+    !storedData.some((element) => {
+      return locationInputEl.value === element.location;
+    })
+  ) {
+    storedData.push({
+      latitude: locationInputEl.getAttribute("data-lat"),
+      longitude: locationInputEl.getAttribute("data-lon"),
+      location: locationInputEl.value,
+    });
+  }
+
+  //save to local storage
+
+  localStorage.setItem("always-sunny-cities", JSON.stringify(storedData));
+  buildSavedSearchList();
   fetchData(
     locationInputEl.getAttribute("data-lat"),
-    locationInputEl.getAttribute("data-lon")
+    locationInputEl.getAttribute("data-lon"),
+    locationInputEl.value
   );
 }
 
-//   if (!localStorage.getItem("restaurant-genie")) {
-//     alert(
-//       "No saved searches were found in this browsing session. Please submit a search query"
-//     );
-//     window.location.href = "index.html";
-//   }
-//   const dataJSON = localStorage.getItem("restaurant-genie");
-//   const data = JSON.parse(dataJSON);
-//   const resultLat = data.latitude;
-//   const resultLong = data.longitude;
-//   const jobDescription = data.jobDescription;
+//Fetch data
 
-function fetchData(lat, lon) {
+function fetchData(lat, lon, location) {
   let url = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=minutely,hourly&appid=${API_KEY}`;
+  resultsSection.html("");
 
   fetch(url)
     .then(function (response) {
@@ -87,12 +127,7 @@ function fetchData(lat, lon) {
           .addClass("bg-dark text-light col-12 rounded")
           .text("Today's Weather")
       );
-      buildWeatherCard(
-        data.current,
-        locationInputEl.value,
-        moment().format("LLLL")
-      );
-      locationInputEl.value = "";
+      buildWeatherCard(data.current, location, moment().format("LLLL"));
       resultsSection.append(
         $("<section>")
           .addClass("bg-dark text-light col-12 rounded")
@@ -101,13 +136,12 @@ function fetchData(lat, lon) {
       for (let i = 0; i < 5; i++) {
         buildWeatherCard(
           data.daily[i],
-          locationInputEl.value,
+          location,
           moment()
             .add(i + 1, "days")
             .format("LLLL")
         );
       }
-      //TODO: save search in a list
     });
 }
 
@@ -119,6 +153,7 @@ function uvi(data) {
   return data;
   //TODO: put html representing colours for different UV indices
 }
+
 function buildWeatherCard(data, city, date) {
   let weatherCard = $("<section>")
     .addClass("card col-4")
