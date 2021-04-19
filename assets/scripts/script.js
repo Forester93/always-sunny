@@ -4,68 +4,6 @@ let locationInputEl = document.getElementById("locationInput");
 const API_KEY = "3c268b02dcc7e0b6b33d3d40d7acd0fd";
 let data = [];
 
-function buildPage() {
-  for (let i = 0; i < products.length; i++) {
-    let product = $("<section>")
-      .addClass("col-3 col-s-5 col-xs-10 custom-card bg-custom")
-      .append("<br>")
-      .append("<br>")
-      .append("<br>")
-      .append($("<h2>").text(products[i].name))
-      .append(
-        $("<img>")
-          .addClass("product-image")
-          .attr("src", "./assets/images/" + products[i].photo)
-          .attr("alt", products[i].description)
-      )
-      .append(
-        $("<article>")
-          .addClass("card-body")
-          .append($("<p>").addClass("card-text").text(products[i].description))
-      )
-      .append(
-        $("<span>")
-          .addClass("price")
-          .text("$" + products[i].price)
-      )
-      .append(
-        $("<form>")
-          .addClass("row justify-content-center align-items-center")
-          .attr("product", i)
-          .append(
-            $("<button>")
-              .addClass("col-2 removeFromCart")
-              .attr("product", i)
-              .attr("price", products[i].price)
-              .text("➖")
-          )
-          .append(
-            $("<button>")
-              .addClass("col-2 addToCart")
-              .attr("product", i)
-              .attr("price", products[i].price)
-              .text("➕")
-          )
-      );
-    /* <section class="col-3 custom-card bg-custom">
-                            <br><br><br>
-                            <h2>Arrangement 1</h2>
-                            <img class="product-image" src="./assets/images/Product (1).jpg" alt="Card image cap">
-                            <article class="card-body">
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                            </article>
-                            <span class='price'>$34.99</span>
-                            <form product='product1' class='row justify-content-center align-items-center'>
-                                <button class='col-2 removeFromCart' id='removeproduct1'>➖</button>
-                                <button class='col-2 addToCart'  id='addproduct1'>➕</button>
-                            </form>
-                        </section> */
-    pageContent.append(product);
-  }
-}
-
-// buildPage();
-
 let formEl = document.getElementById("inputForm");
 let searchButton = $("#searchBtn");
 let clearBtn = $("#clearBtn");
@@ -144,86 +82,110 @@ function fetchData(lat, lon) {
     })
     .then(function (data) {
       console.log(data);
-      buildWeatherCard(data.current, locationInputEl.value);
+      resultsSection.append(
+        $("<section>")
+          .addClass("bg-dark text-light col-12 rounded")
+          .text("Today's Weather")
+      );
+      buildWeatherCard(
+        data.current,
+        locationInputEl.value,
+        moment().format("LLLL")
+      );
       locationInputEl.value = "";
+      resultsSection.append(
+        $("<section>")
+          .addClass("bg-dark text-light col-12 rounded")
+          .text("Five-day Forecast")
+      );
+      for (let i = 0; i < 5; i++) {
+        buildWeatherCard(
+          data.daily[i],
+          locationInputEl.value,
+          moment()
+            .add(i + 1, "days")
+            .format("LLLL")
+        );
+      }
       //TODO: save search in a list
     });
 }
 
-// <div class="card">
-// <img class="card-img-top" src="..." alt="Card image cap" />
-// <div class="card-body">
-//   <h5 class="card-title">Card title</h5>
-//   <p class="card-text">
-//     This is a longer card with supporting text below as a natural
-//     lead-in to additional content. This content is a little bit
-//     longer.
-//   </p>
-//   <p class="card-text">
-//     This is a longer card with supporting text below as a natural
-//     lead-in to additional content. This content is a little bit
-//     longer.
-//   </p>
-//   <p class="card-text">
-//     This is a longer card with supporting text below as a natural
-//     lead-in to additional content. This content is a little bit
-//     longer.
-//   </p>
-//   <p class="card-text">
-//     This is a longer card with supporting text below as a natural
-//     lead-in to additional content. This content is a little bit
-//     longer.
-//   </p>
-//   <p class="card-text">
-//     <small class="text-muted">Last updated 3 mins ago</small>
-//   </p>
-// </div>
-// </div>
 function selectImage(data) {
-  return "http://openweathermap.org/img/wn/" + data.weather[0].icon + "@4x.png";
+  return "http://openweathermap.org/img/wn/" + data.weather[0].icon + "@2x.png";
 }
 
 function uvi(data) {
   return data;
   //TODO: put html representing colours for different UV indices
 }
-function buildWeatherCard(data, city) {
+function buildWeatherCard(data, city, date) {
   let weatherCard = $("<section>")
     .addClass("card col-4")
-    .append(
-      $("<img>")
-        // .addClass("card-img-top")
-        .attr("src", selectImage(data))
-    )
     .append(
       $("<div>")
         .addClass("card-body")
         //timezone name
-        .append($("<h5>").addClass("card-title").text(city))
+        .append(
+          $("<h5>")
+            .addClass("card-title")
+            .text(city)
+            .append(
+              $("<img>")
+                // .addClass("card-img-top")
+                .attr("src", selectImage(data))
+            )
+        )
         .append("<hr>")
         .append(
           //date
-          $("<p>").addClass("card-text").text(moment().format("MMM Do YYYY"))
+          $("<p>")
+            .addClass("card-text")
+            .text(moment(date, "LLLL").format("ddd MMM Do YYYY"))
         )
         //temperature
         .append(
           $("<p>")
             .addClass("card-text temperature")
-            .text(
-              "Temperature: " +
-                Math.ceil((data.temp - 273.15) * 100) / 100 +
-                "°C"
-            )
+            .text(() => {
+              if (!isNaN(data.temp)) {
+                return (
+                  "Temperature: " +
+                  Math.ceil((data.temp - 273.15) * 10) / 10 +
+                  "°C"
+                );
+              } else {
+                return (
+                  "Temperature: Min " +
+                  Math.ceil((data.temp["min"] - 273.15) * 10) / 10 +
+                  "°C, Max " +
+                  Math.ceil((data.temp["max"] - 273.15) * 10) / 10 +
+                  "°C"
+                );
+              }
+            })
         )
         //feels like
         .append(
           $("<p>")
-            .addClass("card-text feels like")
-            .text(
-              "Feels like: " +
-                Math.ceil((data.feels_like - 273.15) * 100) / 100 +
-                "°C"
-            )
+            .addClass("card-text feels-like")
+            .text(() => {
+              if (!isNaN(data.feels_like)) {
+                return (
+                  "Feels like: " +
+                  Math.ceil((data.feels_like - 273.15) * 10) / 10 +
+                  "°C"
+                );
+              } else {
+                return (
+                  "Feels like: Day " +
+                  Math.ceil((data.feels_like["day"] - 273.15) * 10) / 10 +
+                  "°C, Night " +
+                  Math.ceil((data.feels_like["night"] - 273.15) * 10) / 10 +
+                  "°C"
+                );
+              }
+            })
         )
         //humidity
         .append(
@@ -242,7 +204,7 @@ function buildWeatherCard(data, city) {
           $("<p>")
             .addClass("card-text wind-speed")
             .text(
-              "Wind Speed: " + data.wind_speed + "m/s @" + data.wind_deg + "°"
+              "Wind Speed: " + data.wind_speed + "km/hr @" + data.wind_deg + "°"
             )
         )
         //Weather Condition
