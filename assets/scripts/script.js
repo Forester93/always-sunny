@@ -244,7 +244,17 @@ function buildWeatherCard(data, city, date) {
                 return "UV4";
               }
             })
-            .html("UVI: " + data.uvi)
+            .html(function () {
+              if (parseInt(data.uvi) < 2) {
+                return "UVI: " + data.uvi + " Favourable";
+              } else if (parseInt(data.uvi) < 5) {
+                return "UVI: " + data.uvi + " Moderate";
+              } else if (parseInt(data.uvi) < 8) {
+                return "UVI: " + data.uvi + " High";
+              } else {
+                return "UVI: " + data.uvi + " Severe";
+              }
+            })
         )
         //Wind speed and direction
         .append(
