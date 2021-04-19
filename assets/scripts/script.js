@@ -35,7 +35,13 @@ function buildSavedSearchList() {
  */
 function init() {
   formEl.addEventListener("submit", handleSubmit);
-  storedData = JSON.parse(localStorage.getItem("always-sunny-cities"));
+  if (
+    localStorage.getItem("always-sunny-cities") != null &&
+    localStorage.getItem("always-sunny-cities") != ""
+  ) {
+    storedData = JSON.parse(localStorage.getItem("always-sunny-cities"));
+  }
+
   buildSavedSearchList();
   //to search from savedSearchHistory
   $(".searchHistory").on("click", function (event) {
